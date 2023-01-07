@@ -15,72 +15,118 @@ const graph = svg.append('g')
     .attr('height', graphHeight)
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
+
 // creating x and y axis groups for the x-y axes and appending them to the graph
 const xAxisGroup = graph.append('g')
     .attr('transform', `translate(${0}, ${graphHeight})`);
 const yAxisGroup = graph.append('g');
 
+// update x-axis setup
+xAxisGroup.selectAll('text')
+    .attr('transform', 'rotate(-40)')
+    .attr('text-anchor', 'end')
+    .attr('fill', 'orange')
 
-// getting/reading the data, from a file or server
-d3.json('menu.json').then((res) => {
+const y = d3.scaleLinear()
+    .range([graphHeight, 0]);
 
-    // create a linear scale for y direction
-    const y = d3.scaleLinear()
-        .domain([0, d3.max(res, d => d.orders)])
-        .range([graphHeight, 0])
+const x = d3.scaleBand()
+    .range([0, graphWidth])
+    .paddingInner(0.2)
+    .paddingOuter(0.2)
 
-    // const max = d3.max(res, d => d.orders)
-    // const min = d3.min(res, d => d.orders)
-    // const extent = d3.extent(res, d => d.orders)
-
-    // console.log(max, min, extent)
-
-    //  creating a band scale for the width of the bar
-    const x = d3.scaleBand()
-        .domain(res.map((ele) => ele.name))
-        .range([0, 500])
-        .paddingInner(0.2)
-        .paddingOuter(0.2);
+// create axes
+const xAxis = d3.axisBottom(x);
+const yAxis = d3.axisLeft(y)
+    .ticks(3)
+    .tickFormat(d => d + ' orders');
 
 
-    // join the data to rects
-    const rects = graph.selectAll('rect')
-        .data(res)
 
-    // update the rects in the DOM
+
+// update method
+
+const update = (data) => {
+    // set/update your scales
+    y.domain([0, d3.max(data, d => d.orders)])
+
+    x.domain(data.map((ele) => ele.name))
+
+    // join data to existing elements
+    const rects = graph.selectAll('rect').data(data)
+
+    // exit selection method
+    rects.exit().remove()
+
+    // update curent data in the DOM
     rects.attr('width', x.bandwidth)
-        .attr('height', d => graphHeight - (y(d.orders)))
         .attr('fill', 'orange')
         .attr('x', d => x(d.name))
-        .attr('y', d => y(d.orders))
-
-    // append the enterSelection to the DOM 
+    // .transition().duration(500)
+    // .attr('y', d => y(d.orders))
+    // .attr('height', d => graphHeight - (y(d.orders)))
+    // enter selection method
     rects.enter()
         .append('rect')
         .attr('width', x.bandwidth)
-        .attr('height', d => graphHeight - (y(d.orders)))
+        .attr('height', 0)
         .attr('fill', 'orange')
         .attr('x', d => x(d.name))
+        .attr('y', graphHeight)
+        .merge(rects)
+        .transition().duration(500)
+        .attrTween('width', widthTween)
         .attr('y', d => y(d.orders))
+        .attr('height', d => graphHeight - (y(d.orders)))
 
-    // create and call axes
-    const xAxis = d3.axisBottom(x);
-    const yAxis = d3.axisLeft(y)
-        .ticks(3)
-        .tickFormat(d => d + ' orders');
-
+    // call axes
     xAxisGroup.call(xAxis);
     yAxisGroup.call(yAxis);
 
-    xAxisGroup.selectAll('text')
-        .attr('transform', 'rotate(-40)')
-        .attr('text-anchor', 'end')
-        .attr('fill', 'orange')
+}
+
+let data = []
+
+// getting/reading the data, from a file or server
+db.collection('dishes').onSnapshot(res => {
+    res.docChanges().forEach(change => {
+
+        const doc = { ...change.doc.data(), id: change.doc.id }
+
+        switch (change.type) {
+            case 'added':
+                data.push(doc);
+                break;
+            case 'modified':
+                const index = data.findIndex(item => item.id == doc.id)
+                data[index] = doc;
+                break;
+            case 'removed':
+                data = data.filter(item => item.id !== doc.id)
+                break;
+            default:
+                break;
+        }
+    });
+
+    update(data);
 })
 
 
+// Tweens for transition
 
+const widthTween = (d) => {
+    // define interpolation
+    // d3.interpolate returns a function, in this case, i
+    let i = d3.interpolate(0, x.bandwidth());
 
+    // return a function which takes in time ticker i
+    return function (t) {
+
+        // return the value from passing the ticker into the interloation
+        return i(t);
+    }
+}
 
 
 
