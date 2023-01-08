@@ -1,31 +1,47 @@
+const btns = document.querySelectorAll('button');
 const form = document.querySelector('form');
-const itemName = document.querySelector('#name');
-const cost = document.querySelector('#cost');
-const error = document.querySelector('#error');
+const formAct = document.querySelector('form span');
+const input = document.querySelector('input');
+const error = document.querySelector('.error');
 
+let activity = 'cycling'
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault()
+btns.forEach(btn => {
+    btn.addEventListener('click', e => {
+        // get activity
+        activity = e.target.dataset.activity;
 
-    if (itemName.value && cost.value) {
-        error.textContent = ''
+        // remove and add active class
+        btns.forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
 
-        const item = {
-            name: itemName.value,
-            cost: parseInt(cost.value)
-        }
+        // set ID of input foeld
+        input.setAttribute('id', activity);
 
-        db.collection('expenses').add(item).then(res => {
-            itemName.value = ""
-            cost.value = ""
-            error.textContent = "Item added."
+        // set text of formSpan
+        formAct.textContent = activity;
+
+        // call the update funciton
+        update(data);
+    })
+});
+
+// form submit
+
+form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const distance = parseInt(input.value);
+    if (distance) {
+        db.collection('activities').add({
+            distance,
+            activity,
+            date: new Date().toString()
+        }).then(() => {
+            input.value = '';
+            error.textContent = 'Sucessfully submitted';
         })
-
-        setTimeout(() => {
-            error.textContent = ''
-        }, 3000)
-
     } else {
-        error.textContent = "Please enter values before submitting."
+        error.textContent = 'Please enter a valid distance in meters.'
     }
 })
