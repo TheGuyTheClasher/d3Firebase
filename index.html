@@ -5,15 +5,54 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" href="styles.css">
-    <title>fit-me</title>
+    <title>Simulation Corp</title>
 </head>
 
-<body class="grey darken-4">
+<body>
 
-    <div class="canvas"></div>
+    <div class="cyan section">
+        <h2 class="white-text center">Simulation Corp</h2>
+    </div>
+
+    <div class="grey lighten-3 section grey-text" style="position: relative;">
+        <p class="flow-text center">The number one AI corp</p>
+        <a href="#modal" class="btn-floating btn-large halfway-fab lightblue modal-trigger" style="font-size: 25px;">
+            <i class="material-icons">add</i>
+        </a>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h4 class="cyan-text center">Add new employee</h4>
+            <form>
+                <div class="input-field">
+                    <input type="text" id="name" placeholder="Employee name">
+                </div>
+                <div class="input-field">
+                    <input type="text" id="parent" placeholder="Reports to...">
+                </div>
+                <div class="input-field">
+                    <input type="text" id="department" placeholder="Department">
+                </div>
+                <div class="input-field">
+                    <button class="btn white-text lightblue" type="submit">Add employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="">
+        <div class="canvas"></div>
+    </div>
+
+
+
+
+
 
 
 
@@ -41,13 +80,11 @@
         const db = firebase.firestore();
         db.settings({ timestampsInSnapshot: true, merge: true });
     </script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js"></script>
-    <script src="index.js"></script>
-    <script src="graph.js"></script>
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="index.js"></script>
+    <script src="graph.js"></script>
 </body>
 
 </html>
